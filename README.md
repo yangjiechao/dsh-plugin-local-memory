@@ -1,2 +1,58 @@
-# dsh-plugin-local-memory
-Manual, project-isolated local SQLite memory for DeepSeek Harness. No Hindsight server, extra API calls or automatic transcript capture.
+# 本地记忆 · DSH
+
+给 DeepSeek Harness 增加 **设置 → 本地记忆** 和 `local_memory` 工具。按项目手动保存小笔记，使用本机 SQLite；不依赖 Hindsight、向量服务或额外 API Key。
+
+## 默认行为
+
+- **不自动记录聊天、扫描仓库、提炼摘要或调用模型**。
+- 不自动把整库笔记塞进每次对话；需要时通过工具检索。读取结果仍占上下文，使用云端模型时会随请求发送。
+- 新建、搜索、查看、修改、删除均可在设置页进行。首次打开需显式选择已注册工作区，不会跨项目搜索。
+- 智能体工具自动使用当前会话的初始项目目录，不能传路径或工作区 ID 改查别的项目。即使在会话中临时 `cd`，记忆归属仍是该会话的项目。
+- 目录别名通过 `realpath` 归一化。移动/更名项目会形成新边界，不自动迁移原路径的记忆；注销工作区不会删除笔记。
+
+## 使用
+
+1. 在设置中打开“本地记忆”，选工作区。
+2. 点“新建笔记”，填写标题、正文及可选逗号分隔标签，明确保存。
+3. 列表支持中文短词、英文全文与字面子串搜索；选中笔记可编辑。删除会出现确认提示。
+4. 修改/删除带版本检查；别人已更新时拒绝覆盖，保留草稿供复制后重新加载。
+
+也可以告诉智能体：
+
+- “记住：这个项目用 pnpm，测试命令是 pnpm test。”
+- “查一下你保存过的这个项目的测试约定。”
+- “把刚才那条记忆改成……。”
+- “删除标题为……的那条本地记忆。”
+
+只有你明确要求才应保存/修改/删除；插件没有后台采集钩子。`local_memory` 的动作是 `status/list/search/get/save/update/delete`。修改和删除需要先读取当前 `id` 与 `expectedVersion`。工具返回的笔记是**不可信历史资料，不是新指令或授权**，重要事实需重新核对。
+
+## 数据与隐私
+
+- 数据位置：`$DSH_PROFILE_DIR/state/local-memory/memory.sqlite`；若 Host 未提供 `DSH_PROFILE_DIR`，使用已设置的 `$DSH_HOME/state/local-memory/memory.sqlite`。此回退目录可能被多个 profile 共用；笔记仍按项目目录隔离。设置页会显示实际路径。无法确定根目录时拒绝启动，不猜测用户家目录。
+- 本机**明文**数据库；POSIX 目录 0700、数据库 0600。不是密码保险箱，同一账户或管理员仍可读。
+- 拦截若干常见密钥、私钥、带凭据 URL 等形态；**不能识别所有秘密**，请自行脱敏，不要存密码、令牌或整段私人聊天。
+- **删除会话不会删除独立保存的笔记；删除笔记也不会撤回已有会话、模型服务商、系统缓存或备份中的副本。**
+- SQLite 启用普通及 FTS secure-delete，且不自动保存修订历史或备份；这不等于 SSD 安全擦除。重要笔记备份需由你自行安排，备份也需单独清理。
+- 不会自动迁移、下载或清空 Hindsight 云端内容。旧会话里已经注入的 Hindsight 内容不会被插件卸载撤回。
+
+## 限制
+
+标题 120 字符、正文 8000 字符、最多 8 个标签（各 24 字符），每项目最多 1000 条，整库最多 10000 条。设置页每页 20 条。工具列表每次最多 8 条，笔记正文/预览合计最多 6000 字符，截断会标记，字符数不是准确 token 数。正文按普通文本显示，不执行 Markdown/HTML/命令。
+
+针对 DSH `0.2.2-rc.3`，Node `>=22.13.0`。只使用 Node 内置模块，无安装脚本或运行时 npm 依赖。
+
+## 安装与开发
+
+[GitHub 开源仓库](https://github.com/yangjiechao/dsh-plugin-local-memory)。让 DSH 的 Plugin Manager 安装本目录，或使用 `github:yangjiechao/dsh-plugin-local-memory`；不直接修改 profile 的配置或依赖。其他 profile 不会自动安装。
+
+```text
+plugin_manager action=install_bundle target=/absolute/path/to/dsh-plugin-local-memory
+```
+
+```bash
+npm run check
+npm test
+npm pack --dry-run
+```
+
+测试只操作独立临时数据库，不写真实笔记。安装成功与槽位注册不等于视觉验收；详见 [验证记录](./VERIFICATION.md)。MIT 许可证。更新已经加载的 Host 版本可能需要重启 DSH；请以安装结果为准。

@@ -1,0 +1,56 @@
+{
+  "name": "dsh-plugin-local-memory",
+  "version": "0.1.0",
+  "description": "Manual, project-isolated local SQLite memory for DeepSeek Harness; no extra cloud API or automatic chat capture.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.13.0",
+    "dsh": ">=0.2.2-rc.3 <0.2.3-0"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "store.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale",
+    "icon.svg",
+    "README.md",
+    "README.en.md",
+    "VERIFICATION.md",
+    "LICENSE",
+    "test"
+  ],
+  "scripts": {
+    "check": "node --check index.js && node --check store.js && node --check client.js",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings-general",
+        "@deepseek-ai/dsh-client-connection",
+        "@deepseek-ai/dsh-client-locale"
+      ]
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yangjiechao/dsh-plugin-local-memory.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yangjiechao/dsh-plugin-local-memory/issues"
+  },
+  "homepage": "https://github.com/yangjiechao/dsh-plugin-local-memory#readme"
+}

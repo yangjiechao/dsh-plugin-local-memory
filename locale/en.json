@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Local memory",
+    "description": "Manually save, search, inspect, edit and delete project-isolated local SQLite notes. No extra cloud API, chat capture, repository scan, automatic summaries or bulk note injection. Retrieved notes enter model context and may be sent to a cloud provider. The database is not encrypted."
+  }
+}
