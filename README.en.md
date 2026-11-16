@@ -24,7 +24,7 @@ The plugin never captures transcripts, scans repositories, summarizes conversati
 
 120-character title; 8000-character body; eight tags of up to 24 characters; 1000 notes per project and 10000 total. Settings uses pages of 20. Tool list/search returns at most eight records, with a 6000-character aggregate body/preview budget and disclosed truncation; characters are not precise tokens. Notes render as text, not executable HTML/Markdown.
 
-DSH `0.2.2-rc.3`, Node `>=22.13.0`. Install this directory through DSH Plugin Manager, not by manually editing a profile. Source: https://github.com/yangjiechao/dsh-plugin-local-memory . Install with `github:yangjiechao/dsh-plugin-local-memory` or a local directory. Updating an already loaded Host generation may require restarting DSH; follow the installation outcome.
+DSH `>=0.2.1-rc.3 <0.2.3-0`, Node `>=22.13.0`. The original development version (`0.2.2-rc.3`) is not the minimum API requirement: published `0.2.1-rc.3` and installed `0.2.2-rc.3` were compared for the RPC, workspace, tool/prompt registration, settings and locale contracts this plugin uses. Real tool/prompt registration smoke tests pass on both endpoints. Not every intervening release or the old browser UI was exercised; see VERIFICATION.md. Keep the upper bound pending future review. Install this directory through DSH Plugin Manager, not by manually editing a profile. Source: https://github.com/yangjiechao/dsh-plugin-local-memory . Install with `github:yangjiechao/dsh-plugin-local-memory` or a local directory. Updating an already loaded Host generation may require restarting DSH; follow the installation outcome.
 
 ```bash
 npm run check
