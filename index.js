@@ -12,9 +12,11 @@ const FIELDS = {
   update: ['id', 'expectedVersion', 'title', 'body', 'tags'],
   delete: ['id', 'expectedVersion'], status: [],
 };
-export function stateDirectory(env = process.env) {
-  const root = env.DSH_PROFILE_DIR || env.DSH_HOME;
-  if (!root || !path.isAbsolute(root)) throw new MemoryError('STORE_UNAVAILABLE', 'DSH_PROFILE_DIR or DSH_HOME must identify an absolute state root. / 无法确定 DSH 本地存储目录。');
+export function stateDirectory(env = process.env, profileContext) {
+  // Keep the legacy Web location whenever either environment root was supplied.
+  // Desktop may supply neither variable; its launcher provides the profile facts.
+  const root = env.DSH_PROFILE_DIR || env.DSH_HOME || profileContext?.dir;
+  if (typeof root !== 'string' || !path.isAbsolute(root) || root.includes('\0')) throw new MemoryError('STORE_UNAVAILABLE', 'DSH_PROFILE_DIR, DSH_HOME or profileContext.dir must identify an absolute state root. / 无法确定 DSH 本地存储目录。');
   return path.join(root, 'state', 'local-memory');
 }
 export async function canonicalProject(cwd) {
@@ -115,4 +117,8 @@ export function register(ctx, store) {
   });
   return service;
 }
-export async function apply(ctx) { register(ctx, await MemoryStore.open(stateDirectory())); }
+export async function apply(ctx) {
+  // Explicit legacy roots stay authoritative; do not silently move existing notes.
+  const profile = process.env.DSH_PROFILE_DIR || process.env.DSH_HOME ? undefined : ctx.get('profileContext');
+  register(ctx, await MemoryStore.open(stateDirectory(process.env, profile)));
+}

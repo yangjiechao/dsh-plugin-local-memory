@@ -123,6 +123,23 @@ test('symlink database and hard-linked database are refused', async t => {
   }
   assert.equal(await readFile(original, 'utf8'), 'unrelated payload');
 });
+test('state root preserves legacy environment priority and supports desktop profile context', () => {
+  const profile = path.resolve('/fixture/desktop-profile');
+  const home = path.resolve('/fixture/dsh-home');
+  const explicitProfile = path.resolve('/fixture/explicit-profile');
+  const suffix = ['state', 'local-memory'];
+  assert.equal(stateDirectory({ DSH_PROFILE_DIR: explicitProfile, DSH_HOME: home }, { dir: profile }), path.join(explicitProfile, ...suffix));
+  assert.equal(stateDirectory({ DSH_HOME: home }, { dir: profile }), path.join(home, ...suffix));
+  assert.equal(stateDirectory({}, { dir: profile, home }), path.join(profile, ...suffix));
+  assert.equal(stateDirectory({ DSH_PROFILE_DIR: '', DSH_HOME: '' }, { dir: profile }), path.join(profile, ...suffix));
+  assert.throws(() => stateDirectory({ DSH_PROFILE_DIR: 'relative', DSH_HOME: home }, { dir: profile }), code('STORE_UNAVAILABLE'));
+  assert.throws(() => stateDirectory({ DSH_HOME: 'relative' }, { dir: profile }), code('STORE_UNAVAILABLE'));
+  assert.throws(() => stateDirectory({}, { dir: 'relative', home }), code('STORE_UNAVAILABLE'));
+  assert.throws(() => stateDirectory({}, { home }), code('STORE_UNAVAILABLE'));
+  assert.throws(() => stateDirectory({}, { dir: `${profile}\0invalid` }), code('STORE_UNAVAILABLE'));
+  assert.throws(() => stateDirectory({}), code('STORE_UNAVAILABLE'));
+});
+
 test('POSIX data permissions are owner-only; status path resolves without hardcoding home', async t => {
   const { store, dir } = await fixture(t);
   if (process.platform !== 'win32') {
