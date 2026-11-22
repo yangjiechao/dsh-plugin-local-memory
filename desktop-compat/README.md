@@ -1,0 +1,5 @@
+# Desktop Connection compatibility
+
+This configuration-only bundle is intended **only** for Desktop 0.2.2-rc.5, and is not automatically installed with Local memory. Before use, verify that the existing `connection` row is `@deepseek-ai/dsh-client-connection`, its current row-level inject list is exactly `[webStartup]`, and no higher-priority layer overrides it. The patch replaces that list with `[webStartup, webServer]`; it does not deep-merge dependencies. It does not set Connection config or credentials. If there are custom dependencies, overrides, other runtime versions or SDK/Web profiles, do not apply it without a separate review.
+
+Finish desktop tasks and back up the profile before enabling or disabling: recomposition or restart can disconnect the desktop and interrupt active requests. Later layers may still override this patch; disabling it does not guarantee a particular final list. Use Desktop's plugin manager, follow any restart indication, and verify the actual component and authentication behavior. Do not use version exemptions. See [SAFETY.zh.md](SAFETY.zh.md) for detailed checks and rollback guidance.
