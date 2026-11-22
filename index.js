@@ -3,7 +3,7 @@ import { realpath } from 'node:fs/promises';
 import { MemoryStore, MemoryError, LIMITS, recordObject, forModel } from './store.js';
 
 export const name = 'local-memory';
-export const inject = ['connection', 'workspaceRegistry', 'tools', 'systemPrompt'];
+export const inject = ['connection', 'webServer', 'workspaceRegistry', 'tools', 'systemPrompt'];
 const CHANNEL = '/local-memory';
 const TOOL_LIST = 8;
 const FIELDS = {
