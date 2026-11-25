@@ -28,7 +28,7 @@
 
 ## 数据与隐私
 
-- 数据位置：`$DSH_PROFILE_DIR/state/local-memory/memory.sqlite`；若 Host 未提供 `DSH_PROFILE_DIR`，使用已设置的 `$DSH_HOME/state/local-memory/memory.sqlite`。此回退目录可能被多个 profile 共用；笔记仍按项目目录隔离。设置页会显示实际路径。无法确定根目录时拒绝启动，不猜测用户家目录。
+- 数据位置：优先使用 `$DSH_PROFILE_DIR/state/local-memory/memory.sqlite`，其次使用已设置的 `$DSH_HOME` 下同名文件，再回退到启动器提供的 profile 目录。`$DSH_HOME` 回退目录可能被多个 profile 共用；笔记仍按项目目录隔离。设置页会显示实际路径。无法确定根目录时拒绝启动，不猜测用户家目录。
 - 本机**明文**数据库；POSIX 目录 0700、数据库 0600。不是密码保险箱，同一账户或管理员仍可读。
 - 拦截若干常见密钥、私钥、带凭据 URL 等形态；**不能识别所有秘密**，请自行脱敏，不要存密码、令牌或整段私人聊天。
 - **删除会话不会删除独立保存的笔记；删除笔记也不会撤回已有会话、模型服务商、系统缓存或备份中的副本。**
@@ -44,6 +44,8 @@
 ## 安装与开发
 
 [GitHub 开源仓库](https://github.com/yangjiechao/dsh-plugin-local-memory)。让 DSH 的 Plugin Manager 安装本目录，或使用 `github:yangjiechao/dsh-plugin-local-memory`；不直接修改 profile 的配置或依赖。其他 profile 不会自动安装。
+
+从 v0.1.1 起，设置页使用 DSH 的共享、仅所有者可访问的 API，不再需要为本插件修改 Connection 的依赖声明。它修复了旧版的 `cannot get property "webServer" without inject`。新旧版本继续使用同一数据库路径规则。升级后刷新浏览器，以便加载匹配的设置页代码。
 
 ```text
 plugin_manager action=install_bundle target=/absolute/path/to/dsh-plugin-local-memory

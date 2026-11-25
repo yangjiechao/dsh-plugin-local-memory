@@ -1,6 +1,6 @@
 {
   "name": "dsh-plugin-local-memory",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Manual, project-isolated local SQLite memory for DeepSeek Harness; no extra cloud API or automatic chat capture.",
   "type": "module",
   "license": "MIT",

@@ -14,7 +14,7 @@ The plugin never captures transcripts, scans repositories, summarizes conversati
 
 - The tool is bound to the session's initial project directory, not a temporary working-directory change. No arbitrary path or workspace parameter. The owner-only UI deliberately selects one registered workspace. Canonical real paths merge directory aliases, not unrelated projects.
 - Renaming/moving a project does not automatically migrate its notes. Removing a workspace registration does not remove notes.
-- Database: `$DSH_PROFILE_DIR/state/local-memory/memory.sqlite`, or `$DSH_HOME/state/local-memory/memory.sqlite` when the Host does not export DSH_PROFILE_DIR. The fallback may be shared across profiles; canonical project paths remain isolated. Settings shows the actual path. Missing absolute roots fail closed.
+- Database: `state/local-memory/memory.sqlite` under the first available root: `$DSH_PROFILE_DIR`, `$DSH_HOME`, then the launcher's profile directory. The DSH_HOME fallback may be shared across profiles; canonical project paths remain isolated. Settings shows the actual path. Missing absolute roots fail closed.
 - Plaintext storage, with owner-only POSIX file/directory modes. Not an encrypted vault. Common credential patterns are rejected, but detection is incomplete: redact sensitive information yourself.
 - Deleting a conversation does not delete independently saved notes. Deleting a note does not retract copies in chat logs, cloud requests, backups or other systems.
 - SQLite and FTS secure-delete are enabled, with no automatic revision archive or backups. This is not guaranteed SSD erasure. Arrange and manage any desired backups yourself.
@@ -25,6 +25,8 @@ The plugin never captures transcripts, scans repositories, summarizes conversati
 120-character title; 8000-character body; eight tags of up to 24 characters; 1000 notes per project and 10000 total. Settings uses pages of 20. Tool list/search returns at most eight records, with a 6000-character aggregate body/preview budget and disclosed truncation; characters are not precise tokens. Notes render as text, not executable HTML/Markdown.
 
 DSH `>=0.2.1-rc.3 <0.2.3-0`, Node `>=22.13.0`. The original development version (`0.2.2-rc.3`) is not the minimum API requirement: published `0.2.1-rc.3` and installed `0.2.2-rc.3` were compared for the RPC, workspace, tool/prompt registration, settings and locale contracts this plugin uses. Real tool/prompt registration smoke tests pass on both endpoints. Not every intervening release or the old browser UI was exercised; see VERIFICATION.md. Keep the upper bound pending future review. Install this directory through DSH Plugin Manager, not by manually editing a profile. Source: https://github.com/yangjiechao/dsh-plugin-local-memory . Install with `github:yangjiechao/dsh-plugin-local-memory` or a local directory. Updating an already loaded Host generation may require restarting DSH; follow the installation outcome.
+
+Starting with v0.1.1, Settings uses DSH's shared, owner-only API. This fixes `cannot get property "webServer" without inject` without a Connection configuration override or a database migration. Refresh the browser after upgrading so it loads the matching Settings client.
 
 ```bash
 npm run check

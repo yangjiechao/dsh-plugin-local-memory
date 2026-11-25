@@ -17,15 +17,15 @@ test('real DSH services accept memory tool and prompt registrations', { skip: !i
   t.after(async () => ctx.fiber.dispose());
   await ctx.plugin(Tools).await();
   await ctx.plugin(SystemPrompt).await();
-  let rpc;
+  const routes = new Map();
   const serviceContext = {
     effect: fn => ctx.effect(fn),
-    connection: { rpc: { handle: (_channel, callback) => { rpc = callback; } } },
+    connection: { fetch: { register: route => { routes.set(route.path, route); } } },
     workspaceRegistry: { list: () => [], get: () => undefined },
     tools: ctx.tools, systemPrompt: ctx.systemPrompt,
   };
   register(serviceContext, { file: 'not-opened', close() {} });
-  assert.equal(typeof rpc, 'function');
+  assert.equal(typeof routes.get('/api/local-memory/workspaces')?.fetch, 'function');
   // Registration is the plugin's contract; assembling the whole application
   // would additionally require a model-specific executor/preset.
   assert.ok(ctx.tools.get('local_memory'));

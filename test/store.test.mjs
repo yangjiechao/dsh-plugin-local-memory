@@ -168,23 +168,30 @@ test('strict model adapters can fill unused standard fields without bypassing sc
 });
 
 function fakeContext(workspaces) {
-  const x = { cleanups: [], tools: [], prompts: [], rpc: null };
+  const x = { cleanups: [], tools: [], prompts: [], routes: new Map() };
+  x.call = async (action, payload, signal) => {
+    const method = `local-memory/${action}`;
+    const url = `http://127.0.0.1/api/${method}`;
+    const reply = await x.routes.get(`/api/${method}`).fetch(new Request(url, {
+      method: 'POST', headers: { 'content-type': 'application/json' }, signal,
+      body: JSON.stringify({ type: 'client-request', rpcId: 'test', method, payload }),
+    }));
+    return (await reply.json()).result;
+  };
   x.ctx = { effect(fn) { x.cleanups.push(fn()); },
-    connection: { rpc: { handle(channel, fn) { assert.equal(channel, '/local-memory'); x.rpc = fn; } } },
+    connection: { fetch: { register(route) { x.routes.set(route.path, route); } } },
     workspaceRegistry: { list: () => workspaces, get: id => workspaces.find(w => w.id === id) },
     tools: { register(tool) { x.tools.push(tool); } }, systemPrompt: { section(prompt) { x.prompts.push(prompt); } },
   };
   return x;
 }
-test('UI and tool share operations, owner RPC and project isolation are enforced', async t => {
+test('UI and tool share operations and enforce project isolation', async t => {
   const { store, dir } = await fixture(t); const project = await realpath(dir);
   const h = fakeContext([{ id: 'workspace-a', title: 'A', path: project }]); register(h.ctx, store);
-  const signal = new AbortController().signal, owner = { principal: { kind: 'owner' }, signal };
-  const denied = await h.rpc('workspaces', {}, signal, { principal: { kind: 'guest' }, signal });
-  assert.equal(denied.error.code, 'FORBIDDEN');
-  const unknown = await h.rpc('list', { workspaceId: '/arbitrary/path' }, signal, owner); assert.equal(unknown.error.code, 'NO_PROJECT');
-  const invalid = await h.rpc('save', { workspaceId: 'workspace-a', ...note, project: '/other' }, signal, owner); assert.equal(invalid.error.code, 'BAD_REQUEST');
-  const saved = await h.rpc('save', { workspaceId: 'workspace-a', ...note }, signal, owner); assert.equal(saved.ok, true);
+  const signal = new AbortController().signal;
+  const unknown = await h.call('list', { workspaceId: '/arbitrary/path' }, signal); assert.equal(unknown.error.code, 'NO_PROJECT');
+  const invalid = await h.call('save', { workspaceId: 'workspace-a', ...note, project: '/other' }, signal); assert.equal(invalid.error.code, 'BAD_REQUEST');
+  const saved = await h.call('save', { workspaceId: 'workspace-a', ...note }, signal); assert.equal(saved.ok, true);
   const tool = h.tools[0]; assert.equal(tool.name, 'local_memory');
   const exec = { agent: { session: { id: 'synthetic', header: { cwd: project } } }, signal };
   const same = await tool.execute({ action: 'get', id: saved.value.record.id }, exec);

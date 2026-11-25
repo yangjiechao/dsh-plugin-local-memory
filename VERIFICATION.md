@@ -1,5 +1,12 @@
 # Verification
 
+## v0.1.1 Web Connection fix
+
+- On DSH Web 0.2.2-rc.3 / Node 25.5.0, `test/web-runtime.test.mjs` reproduced `cannot get property "webServer" without inject` on the preceding GitHub revision (`c970427`) using the real Connection plugin and the stock Web injection list. The same fixture passes with v0.1.1, with no change to the Connection row.
+- The Web regression runs the real Connection provider and Client caller over a loopback fixture. It checks unauthenticated and untrusted-origin refusals, non-owner refusal, malformed and cancelled writes, a successful synthetic save read back through `local_memory`, an unaffected shared API fallback, and route removal on unload. It does not touch an existing profile or real notes.
+- The `0.2.1-rc.3` Connection release has the same exact Fetch route contract (authenticated owner gate and buffered body) and Client nested endpoint support. The Desktop Electron fixture is optional and is skipped when its application is unavailable; the Web fixture is not a Desktop or a visual browser test.
+- The running DSH Web 0.2.2-rc.3 profile applied v0.1.1 with no warnings. Host inventory reported the component `active`, and the real `local_memory status` used the existing Web profile database. No existing note was changed for verification.
+
 ## Environment and evidence
 
 - DSH 0.2.2-rc.3, macOS, Node v26.5.0. Node built-in SQLite/FTS5 availability was exercised.

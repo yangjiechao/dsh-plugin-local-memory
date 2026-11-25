@@ -11,7 +11,11 @@ function harness(call, confirms = []) {
   } };
   sandbox.capture = value => { hooks = value; };
   vm.runInNewContext(source.replace('    const css = `', '    capture({ createController, dictionaries });\n    const css = `'), sandbox);
-  const ctx = { connection: { rpc: { call: async (_channel, endpoint, payload, signal) => call(endpoint, payload, signal) } },
+  const ctx = { connection: { rpc: { async call(channel, method, payload, signal) {
+    assert.equal(channel, '/api');
+    assert.match(method, /^local-memory\/[a-z]+$/);
+    return call(method.slice('local-memory/'.length), payload, signal);
+  } } },
     locale: { bind: () => (key, args = {}) => key + JSON.stringify(args) } };
   return { controller: hooks.createController(ctx), hooks };
 }

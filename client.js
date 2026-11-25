@@ -6,7 +6,7 @@ window.__ModuleLoader__.load({
     const h = React.createElement;
     const { useEffect, useRef, useSyncExternalStore } = React;
     const NS = 'localMemory';
-    const CHANNEL = '/local-memory';
+    const CHANNEL = '/api';
     const PAGE = 20;
     const dictionaries = {
       en: {
@@ -110,7 +110,7 @@ window.__ModuleLoader__.load({
       };
       const rpc = async (endpoint, payload, signal) => {
         let result, deadline;
-        try { result = await Promise.race([ctx.connection.rpc.call(CHANNEL, endpoint, payload, signal),
+        try { result = await Promise.race([ctx.connection.rpc.call(CHANNEL, `local-memory/${endpoint}`, payload, signal),
           new Promise((_, reject) => { deadline = setTimeout(() => reject(failure('TRANSPORT')), 20000); })]); }
         catch { throw failure('TRANSPORT'); }
         finally { clearTimeout(deadline); }

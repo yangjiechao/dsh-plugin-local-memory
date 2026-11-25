@@ -1,5 +1,7 @@
 # 桌面 Connection 兼容补丁：使用与安全
 
+**仅为 Local memory v0.1.0 保留。** v0.1.1 起使用 DSH 已有的认证 API，不再需要安装本补丁。已经安装本补丁时，停用前先阅读下方回退说明。
+
 这是针对 **DeepSeek Harness Desktop 0.2.2-rc.5** 的独立、仅配置型兼容 bundle，解决该版本 Connection 服务在注册独立 RPC 路由时未声明 `webServer` 依赖的问题。它不是本地记忆插件本身，不会随本地记忆插件自动安装或启用，也不应安装到 Web、SDK 或其他 profile。
 
 ## 使用前核对
